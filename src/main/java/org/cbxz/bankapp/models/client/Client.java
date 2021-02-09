@@ -43,9 +43,6 @@ public class Client {
     @OneToMany(mappedBy = "client", fetch = FetchType.EAGER)
     private List<CreditOffer> creditOfferSet;
 
-//    @OneToMany(mappedBy = "client", fetch = FetchType.EAGER)
-//    private List<Bank> bank;
-
     public Client() {
     }
 

@@ -18,7 +18,7 @@ public class Schedule {
     @Column(name = "id")
     private int Id;
 
-    @OneToOne(mappedBy = "schedule")
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private CreditOffer creditOffer;
 
     private Date dateOfPayment;
@@ -29,8 +29,7 @@ public class Schedule {
 
     private double interestLoanAmount;
 
-    public Schedule(CreditOffer creditOffer, Date dateOfPayment, double sumOfPayment, double principleLoanAmount, double interestLoanAmount) {
-        this.creditOffer = creditOffer;
+    public Schedule(Date dateOfPayment, double sumOfPayment, double principleLoanAmount, double interestLoanAmount) {
         this.dateOfPayment = dateOfPayment;
         this.sumOfPayment = sumOfPayment;
         this.principleLoanAmount = principleLoanAmount;

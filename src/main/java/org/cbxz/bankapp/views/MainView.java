@@ -1,31 +1,21 @@
 package org.cbxz.bankapp.views;
 
-import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
-import com.vaadin.server.Page;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.UI;
-import lombok.Cleanup;
 import lombok.Setter;
 import org.cbxz.bankapp.models.client.Client;
 import org.cbxz.bankapp.models.client.ClientsRepository;
 import org.cbxz.bankapp.views.Client.ClientEditor;
-import org.cbxz.bankapp.views.Credit.CreditView;
+import org.cbxz.bankapp.views.Client.CreditOfferEditor;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,12 +30,13 @@ public class MainView extends VerticalLayout{
     private final Button addNewBtn = new Button("Добавить клиента");
     private final Button editClientButton = new Button("Изменить");
     private final Button deleteButton = new Button("Удалить");
-    private final Button createCreditOffer = new Button("Добавить клиенту кредит");
+    private final Button createCreditOffer = new Button("Оформить на клиента кредит");
     private final Button creditsButton = new Button("Кредиты");
     private final Button banksButton = new Button("Банк");
     private final HorizontalLayout tools = new HorizontalLayout(filter, addNewBtn, editClientButton, deleteButton, createCreditOffer);
     private final HorizontalLayout navigationBar = new HorizontalLayout(creditsButton, banksButton);
     private final ClientEditor clientEditor;
+    private final CreditOfferEditor creditOfferEditor;
 
     @Setter
     private ChangeHandler changeHandler;
@@ -57,7 +48,10 @@ public class MainView extends VerticalLayout{
 
 
     @Autowired
-    public MainView(ClientsRepository clientsRepository, ClientEditor clientEditor){
+    public MainView(ClientsRepository clientsRepository, ClientEditor clientEditor, CreditOfferEditor creditOfferEditor){
+        this.clientsRepository = clientsRepository;
+        this.clientEditor = clientEditor;
+        this.creditOfferEditor = creditOfferEditor;
         grid.setHeight("80vh");
         grid.addColumn(Client::getId).setHeader("ID");
         grid.addColumn(Client::getFirstName).setHeader("Имя");
@@ -78,8 +72,6 @@ public class MainView extends VerticalLayout{
         tools.setAlignItems(Alignment.START);
         navigationBar.setSizeFull();
         navigationBar.setJustifyContentMode(JustifyContentMode.CENTER);
-        this.clientsRepository = clientsRepository;
-        this.clientEditor = clientEditor;
         filter.setValueChangeMode(ValueChangeMode.EAGER);
         filter.addValueChangeListener(e->showClient(e.getValue()));
         add(tools, grid, navigationBar, clientEditor);
@@ -99,12 +91,15 @@ public class MainView extends VerticalLayout{
     private void buttonsListeners(){
         grid.addSelectionListener(e->{
             if(!grid.asSingleSelect().isEmpty()){
+                createCreditOffer.setEnabled(true);
                 editClientButton.setEnabled(true);
                 deleteButton.setEnabled(true);
             }
             else {
+                createCreditOffer.setEnabled(false);
+                deleteButton.setEnabled(false);
                 editClientButton.setEnabled(false);
-                            }
+            }
         });
         addNewBtn.addClickListener(e->{
             clientEditor.open();
@@ -120,12 +115,16 @@ public class MainView extends VerticalLayout{
                 deleteButton.setEnabled(false);
         });
         createCreditOffer.addClickListener(e->{
-            createCreditOffer.setEnabled(true);
+            creditOfferEditor.open();
         });
         creditsButton.addClickListener(e->{
             creditsButton.getUI().ifPresent(ui->{
                 ui.navigate("credits");
             });
+        });
+        createCreditOffer.addClickListener(e->{
+            creditOfferEditor.setClient(grid.asSingleSelect().getValue());
+            creditOfferEditor.open();
         });
 
     }

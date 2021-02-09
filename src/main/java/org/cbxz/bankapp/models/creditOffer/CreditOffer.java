@@ -1,14 +1,16 @@
 package org.cbxz.bankapp.models.creditOffer;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.cbxz.bankapp.models.client.Client;
 import org.cbxz.bankapp.models.credit.Credit;
 import org.cbxz.bankapp.models.schedule.Schedule;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
-
+@EqualsAndHashCode
 @Entity
 @Data
 @IdClass(CreditOfferPk.class)
@@ -28,8 +30,13 @@ public class CreditOffer implements Serializable{
     @Column(name = "credit_sum")
     private double sum;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "schedule_id", referencedColumnName = "id")
-    private Schedule schedule;
+    @OneToMany(mappedBy = "creditOffer", cascade = CascadeType.ALL)
+    private List<Schedule> schedule;
 
+    public CreditOffer(Client client, Credit credit, double sum, List<Schedule> schedule) {
+        this.client = client;
+        this.credit = credit;
+        this.sum = sum;
+        this.schedule = schedule;
+    }
 }
