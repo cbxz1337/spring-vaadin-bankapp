@@ -4,6 +4,7 @@ import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -129,8 +130,16 @@ public class MainView extends VerticalLayout{
 
     }
     private void deleteClient(Client client){
-        clientsRepository.delete(client);
+        if (clientsRepository.findById(client.getId()).isPresent()&&!client.getCreditOfferSet().isEmpty()){
+            Notification.show("У клиента есть кредиты").setPosition(Notification.Position.MIDDLE);
+            clientsRepository.deleteById(client.getId());
+
+        }
+        else {
+            System.out.println("УГУГУГУ");
+        }
     }
+
 
     private void showClient(String firstName){
         Iterable<Client> clientIterable = clientsRepository.findAll();
