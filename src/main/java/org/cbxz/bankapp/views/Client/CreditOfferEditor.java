@@ -135,7 +135,6 @@ public class CreditOfferEditor extends Dialog implements KeyNotifier{
         for(int i = 1; i<=year; i++){
             long balanceOwed = amount;
             Schedule schedule = new Schedule(date, perMonthPayment, balanceOwed, percentPart);
-            scheduleRepo.save(schedule);
             schedules.add(schedule);
             balanceOwed-=perMonthPayment;
             percentPart = balanceOwed*percent;
@@ -143,7 +142,10 @@ public class CreditOfferEditor extends Dialog implements KeyNotifier{
             date = Date.valueOf(localDateTime.toLocalDate());
         }
         System.out.println("УГАБУКА");
-        return new CreditOffer(client, credit,(double)amount,schedules);
+        CreditOffer creditOffer = new CreditOffer(client, credit,(double)amount,schedules);
+        scheduleRepo.saveAll(schedules);
+        creditOfferRepo.save(creditOffer);
+        return creditOffer;
     }
 
 }

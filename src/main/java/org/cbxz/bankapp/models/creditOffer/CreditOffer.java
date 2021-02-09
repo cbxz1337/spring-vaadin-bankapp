@@ -2,6 +2,7 @@ package org.cbxz.bankapp.models.creditOffer;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.cbxz.bankapp.models.client.Client;
 import org.cbxz.bankapp.models.credit.Credit;
 import org.cbxz.bankapp.models.schedule.Schedule;
@@ -13,6 +14,7 @@ import java.util.List;
 @EqualsAndHashCode
 @Entity
 @Data
+@NoArgsConstructor
 @IdClass(CreditOfferPk.class)
 @Table(name = "credit_offer")
 public class CreditOffer implements Serializable{

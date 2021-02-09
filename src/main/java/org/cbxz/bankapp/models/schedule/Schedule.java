@@ -3,6 +3,7 @@ package org.cbxz.bankapp.models.schedule;
 
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.cbxz.bankapp.models.creditOffer.CreditOffer;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import java.util.Date;
 
 @Entity
 @Data
+@NoArgsConstructor
 @Table(name = "schedules")
 public class Schedule {
 
