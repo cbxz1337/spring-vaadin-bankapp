@@ -7,13 +7,12 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.validator.EmailValidator;
+import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-
-import com.vaadin.ui.themes.ValoTheme;
 import lombok.Setter;
 import org.cbxz.bankapp.models.client.Client;
 import org.cbxz.bankapp.models.client.ClientsRepository;
@@ -37,6 +36,7 @@ public class ClientEditor extends Dialog implements KeyNotifier{
     private TextField phoneNumber = new TextField("Номер телефона", "Введите номер телефона");
     private TextField passportNumber = new TextField("Номер паспорта", "Введите номер паспорта");
 
+    private final  String phoneRegexp = "^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$";
     private Button save = new Button("Сохранить", VaadinIcon.CHECK.create());
     private Button cancel = new Button("Отмена");
     private  HorizontalLayout buttons = new HorizontalLayout(save, cancel);
@@ -58,6 +58,12 @@ public class ClientEditor extends Dialog implements KeyNotifier{
         this.clientsRepository = clientsRepository;
         add(firstName,lastName,patronymic,email,phoneNumber,passportNumber, buttons);
         binder.bindInstanceFields(this);
+        binder.forField(phoneNumber)
+                .withValidator(new RegexpValidator("Неверный формат номера", phoneRegexp))
+                .bind(Client::getPhoneNumber, Client::setPhoneNumber);
+        binder.forField(email)
+                .withValidator(new EmailValidator("Не верный формат email"))
+                .bind(Client::getEmail, Client::setEmail);
         save.getElement().getThemeList().add("primary");
         addKeyPressListener(Key.ENTER, e->save());
         save.addClickListener(e->{
@@ -68,35 +74,6 @@ public class ClientEditor extends Dialog implements KeyNotifier{
         cancel.addClickListener(e->editClient(client));
         cancel.addClickListener(e->this.close());
             }
-
-//    public VerticalLayout getClientForm(){
-//        VerticalLayout clientForm = new VerticalLayout();
-//        HorizontalLayout formButtons = new HorizontalLayout(save, cancel);
-//        HorizontalLayout upperInputs = new HorizontalLayout(firstName, lastName);
-//        VerticalLayout otherInputs = new VerticalLayout(patronymic, email, phoneNumber, passportNumber);
-//        clientForm.add(upperInputs, otherInputs, formButtons);
-//
-//        firstName.setValue(client.getFirstName());
-//        lastName.setValue(client.getLastName());
-//        patronymic.setValue(client.getPatronymic());
-//        email.setValue(client.getEmail());
-//        phoneNumber.setValue(client.getPhoneNumber());
-//        passportNumber.setValue(client.getPassportNumber());
-//
-//        firstName.setRequiredIndicatorVisible(true);
-//        lastName.setRequiredIndicatorVisible(true);
-//        phoneNumber.setRequiredIndicatorVisible(true);
-//        passportNumber.setRequiredIndicatorVisible(true);
-//
-//        save.addClickListener(event -> this.save());
-//        save.addClickListener(event -> this.close());
-//        save.setThemeName(ValoTheme.BUTTON_FRIENDLY);
-//
-//        cancel.addClickListener(e->setVisible(false));
-//        cancel.addClickListener(e->this.close());
-//
-//        return clientForm;
-//    }
 
     public void save() {
         Optional<Client> clientOptional = clientsRepository.findByPassportNumber(passportNumber.getValue());
