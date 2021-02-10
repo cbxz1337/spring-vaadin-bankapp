@@ -32,7 +32,7 @@ public class CreditOffer implements Serializable{
     @Column(name = "credit_sum")
     private double sum;
 
-    @OneToMany(mappedBy = "creditOffer", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "creditOffer", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Schedule> schedule;
 
     public CreditOffer(Client client, Credit credit, double sum, List<Schedule> schedule) {

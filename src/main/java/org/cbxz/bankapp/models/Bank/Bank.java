@@ -22,16 +22,16 @@ import javax.validation.constraints.NotNull;
 public class Bank {
 
     @Id
-    @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "credit_id", insertable = false, updatable = false)
     private Credit credit;
 
     @Id
-    @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "client_id", insertable = false, updatable = false)
     private Client client;
 
-    public Bank(@NotNull Credit credit, @NotNull Client client) {
+    public Bank(Credit credit,Client client) {
         this.credit = credit;
         this.client = client;
     }

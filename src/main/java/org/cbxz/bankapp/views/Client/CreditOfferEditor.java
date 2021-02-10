@@ -9,12 +9,15 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.Setter;
+import org.cbxz.bankapp.models.Bank.Bank;
+import org.cbxz.bankapp.models.Bank.BankRepository;
 import org.cbxz.bankapp.models.client.Client;
 import org.cbxz.bankapp.models.credit.Credit;
 import org.cbxz.bankapp.models.creditOffer.CreditOffer;
@@ -33,6 +36,8 @@ import java.util.List;
 @SpringComponent
 @UIScope
 public class CreditOfferEditor extends Dialog implements KeyNotifier{
+
+    private BankRepository bankRepository;
 
     private VerticalLayout mainLayout = new VerticalLayout();
 
@@ -68,7 +73,8 @@ public class CreditOfferEditor extends Dialog implements KeyNotifier{
 
 
     @Autowired
-    public CreditOfferEditor(CreditOfferRepo creditOfferRepo, CreditService creditService, ScheduleRepo scheduleRepo){
+    public CreditOfferEditor(CreditOfferRepo creditOfferRepo, CreditService creditService, ScheduleRepo scheduleRepo, BankRepository bankRepository){
+        this.bankRepository = bankRepository;
         this.creditService = creditService;
         this.creditOfferRepo = creditOfferRepo;
         this.scheduleRepo = scheduleRepo;
@@ -103,8 +109,8 @@ public class CreditOfferEditor extends Dialog implements KeyNotifier{
             creditList.add(credit);
         }
         if (creditList.size()==0){
-            System.out.println(creditList.size());
-            add(new Label("asd"));
+            Notification.show("Подходящих кредитов не найдено").setPosition(Notification.Position.MIDDLE);
+            close();
         }
         else {
             Label chooseLabel = new Label("Выберите нужный кредит");
@@ -135,12 +141,13 @@ public class CreditOfferEditor extends Dialog implements KeyNotifier{
     public CreditOffer calculateOffer(Client client, int year, Credit credit, long amount){
         List<Schedule> schedules = new ArrayList<>();
         double percent = credit.getPercent()/100;
+        System.out.println(percent);
         int months = year*12;
         double perMonthPayment = amount * (percent + (percent/(Math.pow(percent+1,months)-1)));
         double percentPart = amount*percent;
         LocalDateTime localDateTime = LocalDateTime.now();
         Date date = Date.valueOf(localDateTime.toLocalDate());
-        for(int i = 1; i<=year; i++){
+        for(int i = 1; i<=months; i++){
             long balanceOwed = amount;
             Schedule schedule = new Schedule(date, perMonthPayment, balanceOwed, percentPart);
             schedules.add(schedule);
@@ -172,12 +179,14 @@ public class CreditOfferEditor extends Dialog implements KeyNotifier{
         accept.addClickListener(e->{
             scheduleRepo.saveAll(creditOffer.getSchedule());
             creditOfferRepo.save(creditOffer);
-            changeHandler.onChange();
+            bankRepository.save(new Bank(creditOffer.getCredit(), creditOffer.getClient()));
             remove(creditDetailsView);
             close();
+            changeHandler.onChange();
         });
         Button decline = new Button("Отменить");
         decline.addClickListener(e->{
+            removeAll();
             close();
         });
         buttonsBar.add(accept, decline);

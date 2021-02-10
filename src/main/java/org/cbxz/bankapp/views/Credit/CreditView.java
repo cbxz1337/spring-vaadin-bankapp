@@ -107,6 +107,11 @@ public class CreditView extends VerticalLayout{
                 ui.navigate("");
             });
         });
+        banksButton.addClickListener(e->{
+            banksButton.getUI().ifPresent(ui->{
+                ui.navigate("bank");
+            });
+        });
     }
     private void deleteClient(Credit credit){
         creditRepository.delete(credit);

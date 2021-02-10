@@ -15,6 +15,10 @@ import org.cbxz.bankapp.models.Bank.Bank;
 import org.cbxz.bankapp.models.Bank.BankRepository;
 
 import org.cbxz.bankapp.models.client.Client;
+import org.cbxz.bankapp.models.credit.Credit;
+import org.cbxz.bankapp.models.credit.CreditRepository;
+import org.cbxz.bankapp.models.creditOffer.CreditOffer;
+import org.cbxz.bankapp.models.creditOffer.CreditOfferRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -27,7 +31,9 @@ public class BankView extends VerticalLayout{
 
     private BankRepository bankRepository;
 
-    private Grid<Bank> grid = new Grid<>();
+    private CreditOfferRepo creditOfferRepo;
+
+    private Grid<Bank> grid = new Grid<>(Bank.class);
     private final TextField filter = new TextField("", "Фильтр");
     private final Button deleteButton = new Button("Удалить");
     private final Button showCreditDetails = new Button("Детали кредита");
@@ -47,11 +53,13 @@ public class BankView extends VerticalLayout{
 
 
     @Autowired
-    public BankView(BankRepository bankRepository){
+    public BankView(BankRepository bankRepository, CreditOfferRepo creditOfferRepo){
+        this.creditOfferRepo = creditOfferRepo;
         this.bankRepository = bankRepository;
         grid.setHeight("80vh");
-        grid.addColumn(Bank::getClient).setHeader("Клиент");
-        grid.addColumn(Bank::getCredit).setHeader("Кредит");
+        grid.setColumns("client", "credit");
+//        grid.addColumn(CreditOffer::getClient).setHeader("Клиент");
+//        grid.addColumn(CreditOffer::getCredit).setHeader("Кредит");
         tools.setSpacing(true);
         showCreditDetails.setIcon(VaadinIcon.OPEN_BOOK.create());
         showCreditDetails.setEnabled(false);
@@ -67,49 +75,21 @@ public class BankView extends VerticalLayout{
                 .asSingleSelect()
                 .addValueChangeListener(AbstractField.ComponentValueChangeEvent::getValue);
         showBanks();
-//        buttonsListeners();
+        buttonsListeners();
 
     }
-//    private void buttonsListeners(){
-//        grid.addSelectionListener(e->{
-//            if(!grid.asSingleSelect().isEmpty()){
-//                createCreditOffer.setEnabled(true);
-//                editClientButton.setEnabled(true);
-//                deleteButton.setEnabled(true);
-//            }
-//            else {
-//                createCreditOffer.setEnabled(false);
-//                deleteButton.setEnabled(false);
-//                editClientButton.setEnabled(false);
-//            }
-//        });
-//        addNewBtn.addClickListener(e->{
-//            clientEditor.open();
-//            clientEditor.editClient(new Client());
-//        });
-//        editClientButton.addClickListener(e->{
-//            clientEditor.open();
-//            clientEditor.editClient(grid.asSingleSelect().getValue());
-//        });
-//        deleteButton.addClickListener(e->{
-//            deleteClient(grid.asSingleSelect().getValue());
-//            changeHandler.onChange();
-//            deleteButton.setEnabled(false);
-//        });
-//        createCreditOffer.addClickListener(e->{
-//            creditOfferEditor.open();
-//        });
-//        creditsButton.addClickListener(e->{
-//            creditsButton.getUI().ifPresent(ui->{
-//                ui.navigate("credits");
-//            });
-//        });
-//        createCreditOffer.addClickListener(e->{
-//            creditOfferEditor.setClient(grid.asSingleSelect().getValue());
-//            creditOfferEditor.open();
-//        });
-//
-//    }
+    private void buttonsListeners(){
+        creditsButton.addClickListener(e->{
+            creditsButton.getUI().ifPresent(ui->{
+                ui.navigate("credits");
+            });
+        });
+        clientsButton.addClickListener(e->{
+            clientsButton.getUI().ifPresent(ui->{
+                ui.navigate("");
+            });
+        });
+    }
 //    private void deleteClient(Client client){
 //        if (clientsRepository.findById(client.getId()).isPresent()&&!client.getCreditOfferSet().isEmpty()){
 //            Notification.show("У клиента есть кредиты").setPosition(Notification.Position.MIDDLE);
@@ -123,16 +103,12 @@ public class BankView extends VerticalLayout{
 
 
     private void showBanks(){
-        Iterable<Bank> clientIterable = bankRepository.findAll();
-        List<Bank> bankList = new ArrayList<>();
-        for (Bank bank : clientIterable){
+        Iterable<Bank> bankIterable = bankRepository.findAll();
+        List<Bank>  bankList= new ArrayList<>();
+        for (Bank bank : bankIterable){
                 bankList.add(bank);
-
-            grid.setItems(bank);
         }
-//        else {
-//            Optional<Client> clientOptional = clientsRepository.findByFirstName(firstName);
-//            clientOptional.ifPresent(client -> grid.setItems(client));
-//        }
+        grid.setItems(bankList);
     }
 }
+
