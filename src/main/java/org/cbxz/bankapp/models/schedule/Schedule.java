@@ -16,7 +16,7 @@ import java.util.Date;
 public class Schedule {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     private int Id;
 
@@ -38,4 +38,9 @@ public class Schedule {
         this.interestLoanAmount = interestLoanAmount;
     }
 
+    @Override
+    public String toString() {
+        return
+                "Ежемесячный платёж: " + sumOfPayment;
+    }
 }

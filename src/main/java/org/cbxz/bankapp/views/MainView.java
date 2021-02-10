@@ -82,6 +82,9 @@ public class MainView extends VerticalLayout{
         clientEditor.setChangeHandler(()->{
             showClient("");
         });
+        creditOfferEditor.setChangeHandler(()->{
+            showClient("");
+        });
         setChangeHandler(()->{
             showClient("");
         });
@@ -127,16 +130,21 @@ public class MainView extends VerticalLayout{
             creditOfferEditor.setClient(grid.asSingleSelect().getValue());
             creditOfferEditor.open();
         });
+        banksButton.addClickListener(e->{
+            banksButton.getUI().ifPresent(ui->{
+                ui.navigate("bank");
+            });
+        });
 
     }
     private void deleteClient(Client client){
         if (clientsRepository.findById(client.getId()).isPresent()&&!client.getCreditOfferSet().isEmpty()){
             Notification.show("У клиента есть кредиты").setPosition(Notification.Position.MIDDLE);
-            clientsRepository.deleteById(client.getId());
 
         }
         else {
-            System.out.println("УГУГУГУ");
+            System.out.println("Клиент удален");
+            clientsRepository.deleteById(client.getId());
         }
     }
 

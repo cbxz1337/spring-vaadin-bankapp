@@ -2,7 +2,7 @@ package org.cbxz.bankapp.views.Client;
 
 
 
-import com.vaadin.data.Binder;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.KeyNotifier;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -14,11 +14,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import com.vaadin.ui.themes.ValoTheme;
 import lombok.Setter;
 import org.cbxz.bankapp.models.client.Client;
 import org.cbxz.bankapp.models.credit.Credit;
-import org.cbxz.bankapp.models.credit.CreditRepository;
 import org.cbxz.bankapp.models.creditOffer.CreditOffer;
 import org.cbxz.bankapp.models.creditOffer.CreditOfferRepo;
 import org.cbxz.bankapp.models.creditOffer.CreditService;
@@ -48,11 +46,17 @@ public class CreditOfferEditor extends Dialog implements KeyNotifier{
 
     private TextField creditAmount = new TextField();
 
+    private TextField years;
+
     private HorizontalLayout firstStage = new HorizontalLayout();
 
     private Button accept = new Button("Подтвердить", VaadinIcon.CHECK.create());
 
     private Button cancel = new Button("Отмена");
+
+    private VerticalLayout chooseCreditView = new VerticalLayout();
+
+    private Grid<Credit> creditGrid;
 
     @Setter
     private ChangeHandler changeHandler;
@@ -73,6 +77,10 @@ public class CreditOfferEditor extends Dialog implements KeyNotifier{
         firstStage.setSizeFull();
         add(firstStage);
         createListeners();
+    }
+
+    public void setClient(Client client){
+        this.client = client;
     }
 
     private void createListeners(){
@@ -100,9 +108,9 @@ public class CreditOfferEditor extends Dialog implements KeyNotifier{
         }
         else {
             Label chooseLabel = new Label("Выберите нужный кредит");
-            Grid<Credit> creditGrid = new Grid<>();
+            creditGrid = new Grid<>();
             HorizontalLayout buttons = new HorizontalLayout();
-            TextField years = new TextField("Введите срок кредита");
+            years = new TextField("Введите срок кредита");
             creditGrid.setItems(creditList);
             creditGrid.addColumn(Credit::getLimit).setHeader("Лимит");
             creditGrid.addColumn(Credit::getPercent).setHeader("%");
@@ -110,24 +118,24 @@ public class CreditOfferEditor extends Dialog implements KeyNotifier{
             Button cancelButton = new Button("Отмена");
             acceptButton.setEnabled(false);
             buttons.add(acceptButton, cancelButton);
-            add(chooseLabel, creditGrid, years, buttons);
+            chooseCreditView.add(chooseLabel, creditGrid, years, buttons);
+            add(chooseCreditView);
             creditGrid.addSelectionListener(e->{
                 acceptButton.setEnabled(true);
             });
-            acceptButton.addClickListener(e->{ calculateOffer(client, Integer.parseInt(years.getValue().trim()),
+            acceptButton.addClickListener(e->{
+                calculateOffer(client, Integer.parseInt(years.getValue().trim()),
                     creditGrid.asSingleSelect().getValue(),
                     Long.parseLong(creditAmount.getValue().trim()));
             });
         }
     }
-    public void setClient(Client client){
-        this.client = client;
-    }
+
 
     public CreditOffer calculateOffer(Client client, int year, Credit credit, long amount){
         List<Schedule> schedules = new ArrayList<>();
         double percent = credit.getPercent()/100;
-        int months = year/12;
+        int months = year*12;
         double perMonthPayment = amount * (percent + (percent/(Math.pow(percent+1,months)-1)));
         double percentPart = amount*percent;
         LocalDateTime localDateTime = LocalDateTime.now();
@@ -141,12 +149,40 @@ public class CreditOfferEditor extends Dialog implements KeyNotifier{
             localDateTime = localDateTime.plusMonths(1);
             date = Date.valueOf(localDateTime.toLocalDate());
         }
-        System.out.println("УГАБУКА");
         CreditOffer creditOffer = new CreditOffer(client, credit,(double)amount,schedules);
-        scheduleRepo.saveAll(schedules);
-        creditOfferRepo.save(creditOffer);
+        add(createDetailsWindow(creditOffer, year, amount));
         return creditOffer;
     }
-
+    public Component createDetailsWindow(CreditOffer creditOffer, int year, long amount){
+        remove(chooseCreditView);
+        VerticalLayout creditDetailsView = new VerticalLayout();
+        HorizontalLayout buttonsBar = new HorizontalLayout();
+        Label creditDetailsLabel = new Label("Детали кредита");
+        creditDetailsView.add(
+                creditDetailsLabel,
+                new Label("Имя клиента: " +  creditOffer.getClient().getFirstName()),
+                new Label("Фамилия: " + creditOffer.getClient().getLastName()),
+                new Label("Паспорт РФ: " + creditOffer.getClient().getPassportNumber()),
+                new Label("Срок кредита: " + year*12 + " месяцев"),
+                new Label("Сумма кредита: " + amount + " руб"),
+                new Label("Процент: " + creditOffer.getCredit().getPercent()+" %"),
+                new Label("Сумма ежемесячного платежа: " + creditOffer.getSchedule().get(0).getSumOfPayment())
+        );
+        Button accept = new Button("Принять");
+        accept.addClickListener(e->{
+            scheduleRepo.saveAll(creditOffer.getSchedule());
+            creditOfferRepo.save(creditOffer);
+            changeHandler.onChange();
+            remove(creditDetailsView);
+            close();
+        });
+        Button decline = new Button("Отменить");
+        decline.addClickListener(e->{
+            close();
+        });
+        buttonsBar.add(accept, decline);
+        creditDetailsView.add(buttonsBar);
+        return creditDetailsView;
+    }
 }
 

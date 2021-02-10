@@ -5,6 +5,7 @@ package org.cbxz.bankapp.models.credit;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.cbxz.bankapp.models.Bank.Bank;
 import org.cbxz.bankapp.models.creditOffer.CreditOffer;
 
 import javax.persistence.*;
@@ -29,6 +30,9 @@ public class Credit implements Comparable<Credit>{
 
     @OneToMany(mappedBy = "credit", fetch = FetchType.EAGER)
     private List<CreditOffer> creditOffers;
+
+    @OneToMany(mappedBy = "credit", fetch = FetchType.EAGER)
+    private List<Bank> banks;
 
     public Credit() {
     }

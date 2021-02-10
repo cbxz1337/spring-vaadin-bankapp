@@ -6,6 +6,7 @@ package org.cbxz.bankapp.models.client;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.cbxz.bankapp.models.Bank.Bank;
 import org.cbxz.bankapp.models.creditOffer.CreditOffer;
 
 import javax.persistence.*;
@@ -43,6 +44,9 @@ public class Client {
     @OneToMany(mappedBy = "client", fetch = FetchType.EAGER)
     private List<CreditOffer> creditOfferSet;
 
+    @OneToMany(mappedBy = "client", fetch = FetchType.EAGER)
+    private List<Bank> banks;
+
     public Client() {
     }
 
@@ -53,5 +57,13 @@ public class Client {
         this.patronymic = patronymic;
         this.phoneNumber = phoneNumber;
         this.passportNumber = passportNumber;
+    }
+
+    @Override
+    public String toString() {
+        return
+                "Имя : " + firstName + "\n" +
+                "Фамилия: " + lastName + "\n" +
+                "Номер паспорта: " + passportNumber;
     }
 }
