@@ -19,15 +19,15 @@ public class CreditService {
         this.creditRepository = creditRepository;
     }
 
-    public Optional<Credit> findById(int id){
+    public Optional<Credit> findById(int id) {
         return creditRepository.findById(id);
     }
 
-    public Iterable<Credit> findByLimit(long limit){
+    public Iterable<Credit> findByLimit(long limit) {
         return creditRepository.findByLimit(limit);
     }
 
-    public Iterable<Credit> findAll(){
+    public Iterable<Credit> findAll() {
         return creditRepository.findAll();
     }
 

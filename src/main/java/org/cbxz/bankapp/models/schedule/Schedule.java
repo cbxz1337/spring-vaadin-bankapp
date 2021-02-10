@@ -1,14 +1,16 @@
 package org.cbxz.bankapp.models.schedule;
 
 
-
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.cbxz.bankapp.models.creditOffer.CreditOffer;
 
 import javax.persistence.*;
+import java.text.DecimalFormat;
 import java.util.Date;
 
+@EqualsAndHashCode
 @Entity
 @Data
 @NoArgsConstructor
@@ -16,12 +18,14 @@ import java.util.Date;
 public class Schedule {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private int Id;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private CreditOffer creditOffer;
+    private int creditId;
+
+    private int clientId;
+
 
     private Date dateOfPayment;
 
@@ -31,7 +35,10 @@ public class Schedule {
 
     private double interestLoanAmount;
 
-    public Schedule(Date dateOfPayment, double sumOfPayment, double principleLoanAmount, double interestLoanAmount) {
+
+    public Schedule(Date dateOfPayment, double sumOfPayment, double principleLoanAmount, double interestLoanAmount, int clientId, int creditId) {
+        this.creditId = creditId;
+        this.clientId = clientId;
         this.dateOfPayment = dateOfPayment;
         this.sumOfPayment = sumOfPayment;
         this.principleLoanAmount = principleLoanAmount;
@@ -40,7 +47,7 @@ public class Schedule {
 
     @Override
     public String toString() {
-        return
-                "Ежемесячный платёж: " + sumOfPayment;
+        DecimalFormat df = new DecimalFormat("#.##");
+        return "Дата платежа: " + this.dateOfPayment + " " + "Сумма платежа руб.," + df.format(this.sumOfPayment) + " Сумма гашения тела кредита.,: " + df.format(this.principleLoanAmount) + " Сумма гашения процентов " + df.format(this.interestLoanAmount);
     }
 }

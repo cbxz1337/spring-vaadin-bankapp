@@ -1,8 +1,6 @@
 package org.cbxz.bankapp.models.credit;
 
 
-
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.cbxz.bankapp.models.Bank.Bank;
@@ -17,7 +15,7 @@ import java.util.List;
 @Entity
 @Data
 @Table(name = "CREDITS")
-public class Credit implements Comparable<Credit>{
+public class Credit implements Comparable<Credit> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -47,4 +45,8 @@ public class Credit implements Comparable<Credit>{
         return Long.compare(o.getLimit(), this.getLimit());
     }
 
+    @Override
+    public String toString() {
+        return this.getLimit() + " руб.," + this.getPercent() + " %";
+    }
 }

@@ -1,9 +1,6 @@
 package org.cbxz.bankapp.models.client;
 
 
-
-
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.cbxz.bankapp.models.Bank.Bank;
@@ -20,25 +17,25 @@ public class Client {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="client_id")
+    @Column(name = "client_id")
     private Integer id;
 
-    @Column(name="first_name")
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name="last_name")
+    @Column(name = "last_name")
     private String lastName;
 
-    @Column(name="patronymic")
+    @Column(name = "patronymic")
     private String patronymic;
 
-    @Column(name="phone_number")
+    @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name="email")
+    @Column(name = "email")
     private String email;
 
-    @Column(name="passport_number")
+    @Column(name = "passport_number")
     private String passportNumber;
 
     @OneToMany(mappedBy = "client", fetch = FetchType.EAGER)
@@ -61,9 +58,6 @@ public class Client {
 
     @Override
     public String toString() {
-        return
-                "Имя : " + firstName + "\n" +
-                "Фамилия: " + lastName + "\n" +
-                "Номер паспорта: " + passportNumber;
+        return this.getFirstName() + " " + this.getLastName() + " паспорт: " + this.getPassportNumber();
     }
 }

@@ -4,20 +4,26 @@ import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.theme.Theme;
+import com.vaadin.flow.theme.lumo.Lumo;
 import lombok.Setter;
 import org.cbxz.bankapp.models.credit.Credit;
 import org.cbxz.bankapp.models.credit.CreditRepository;
+import org.cbxz.bankapp.models.creditOffer.CreditOfferRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Theme(value = Lumo.class, variant = Lumo.DARK)
 @Route("credits")
-public class CreditView extends VerticalLayout{
+public class CreditView extends VerticalLayout {
 
     private CreditRepository creditRepository;
 
@@ -32,27 +38,32 @@ public class CreditView extends VerticalLayout{
     private final HorizontalLayout tools = new HorizontalLayout(filter, addNewBtn, editСreditButton, deleteButton);
     private final HorizontalLayout navigationBar = new HorizontalLayout(creditsButton, banksButton, clientsButton);
     private final CreditEditor creditEditor;
+    private final CreditOfferRepo creditOfferRepo;
 
 
     @Setter
     private ChangeHandler changeHandler;
 
 
-    public interface ChangeHandler{
+    public interface ChangeHandler {
         void onChange();
     }
 
 
     @Autowired
-    public CreditView(CreditRepository creditRepository, CreditEditor creditEditor){
+    public CreditView(CreditRepository creditRepository, CreditEditor creditEditor, CreditOfferRepo creditOfferRepo) {
         this.creditRepository = creditRepository;
         this.creditEditor = creditEditor;
+        this.creditOfferRepo = creditOfferRepo;
         grid.setHeight("80vh");
         grid.addColumn(Credit::getId).setHeader("ID");
         grid.addColumn(Credit::getLimit).setHeader("Лимит");
         grid.addColumn(Credit::getPercent).setHeader("%");
         tools.setSpacing(true);
         addNewBtn.setIcon(VaadinIcon.PLUS.create());
+        creditsButton.getElement().getThemeList().add("primary");
+        banksButton.getElement().getThemeList().add("primary");
+        clientsButton.getElement().getThemeList().add("primary");
         creditsButton.setEnabled(false);
         editСreditButton.setEnabled(false);
         deleteButton.setEnabled(false);
@@ -64,64 +75,74 @@ public class CreditView extends VerticalLayout{
         navigationBar.setSizeFull();
         navigationBar.setJustifyContentMode(JustifyContentMode.CENTER);
         filter.setValueChangeMode(ValueChangeMode.EAGER);
-        filter.addValueChangeListener(e->showClient(e.getValue()));
+        filter.addValueChangeListener(e -> showCredits(e.getValue()));
         add(tools, grid, navigationBar, creditEditor);
         grid
                 .asSingleSelect()
                 .addValueChangeListener(AbstractField.ComponentValueChangeEvent::getValue);
-        creditEditor.setChangeHandler(()->{
-            showClient("");
+        creditEditor.setChangeHandler(() -> {
+            showCredits("");
         });
-        setChangeHandler(()->{
-            showClient("");
+        setChangeHandler(() -> {
+            showCredits("");
         });
-        showClient("");
+        showCredits("");
         buttonsListeners();
 
     }
-    private void buttonsListeners(){
-        grid.addSelectionListener(e->{
-            if(!grid.asSingleSelect().isEmpty()){
+
+    private void buttonsListeners() {
+        grid.addSelectionListener(e -> {
+            if (!grid.asSingleSelect().isEmpty()) {
                 editСreditButton.setEnabled(true);
                 deleteButton.setEnabled(true);
-            }
-            else {
+            } else {
                 editСreditButton.setEnabled(false);
             }
         });
-        addNewBtn.addClickListener(e->{
+        addNewBtn.addClickListener(e -> {
             creditEditor.open();
             creditEditor.editCredit(new Credit());
         });
-        editСreditButton.addClickListener(e->{
+        editСreditButton.addClickListener(e -> {
             creditEditor.open();
             creditEditor.editCredit(grid.asSingleSelect().getValue());
         });
-        deleteButton.addClickListener(e->{
-            deleteClient(grid.asSingleSelect().getValue());
+        deleteButton.addClickListener(e -> {
+            deleteCredit(grid.asSingleSelect().getValue());
             changeHandler.onChange();
             deleteButton.setEnabled(false);
         });
-        clientsButton.addClickListener(e->{
-            clientsButton.getUI().ifPresent(ui->{
+        clientsButton.addClickListener(e -> {
+            clientsButton.getUI().ifPresent(ui -> {
                 ui.navigate("");
             });
         });
-        banksButton.addClickListener(e->{
-            banksButton.getUI().ifPresent(ui->{
+        banksButton.addClickListener(e -> {
+            banksButton.getUI().ifPresent(ui -> {
                 ui.navigate("bank");
             });
         });
     }
-    private void deleteClient(Credit credit){
-        creditRepository.delete(credit);
+
+    private void deleteCredit(Credit credit) {
+        try {
+            if (credit.getCreditOffers().size() == 0) {
+                creditRepository.deleteById(credit.getId());
+            } else {
+                Notification.show("Кредит привязан как минимум к одному кредитному предложению.").setPosition(Notification.Position.MIDDLE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Notification.show("Что-то пошло не так!");
+        }
     }
 
-    private void showClient(String limit){
+    private void showCredits(String limit) {
         Iterable<Credit> clientIterable = creditRepository.findAll();
         List<Credit> creditList = new ArrayList<>();
-        if (limit.isEmpty()){
-            for (Credit credit : clientIterable){
+        if (limit.isEmpty()) {
+            for (Credit credit : clientIterable) {
                 creditList.add(credit);
             }
             grid.setItems(creditList);

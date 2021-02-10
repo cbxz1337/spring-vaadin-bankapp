@@ -5,6 +5,7 @@ import com.vaadin.flow.component.KeyNotifier;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -13,10 +14,12 @@ import com.vaadin.flow.data.converter.StringToDoubleConverter;
 import com.vaadin.flow.data.converter.StringToLongConverter;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.cbxz.bankapp.models.credit.Credit;
 import org.cbxz.bankapp.models.credit.CreditRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.Optional;
 
 
@@ -41,55 +44,64 @@ public class CreditEditor extends Dialog implements KeyNotifier {
     private ChangeHandler changeHandler;
 
 
-    public interface ChangeHandler{
+    public interface ChangeHandler {
         void onChange();
     }
 
 
     @Autowired
-    public CreditEditor(CreditRepository creditRepository){
+    public CreditEditor(CreditRepository creditRepository) {
         setCloseOnOutsideClick(true);
         VerticalLayout layout = new VerticalLayout(fields, buttons);
         this.creditRepository = creditRepository;
         add(layout);
         binder.setBean(credit);
         binder.forField(limit)
-                .withConverter(new StringToLongConverter(""))
+                .withConverter(new StringToLongConverter("Неверные данные"))
                 .bind(Credit::getLimit, Credit::setLimit);
         binder.forField(percent)
-                .withConverter(new StringToDoubleConverter(""))
+                .withConverter(new StringToDoubleConverter("Неверные данные"))
                 .bind(Credit::getPercent, Credit::setPercent);
         binder.bindInstanceFields(this);
         save.getElement().getThemeList().add("primary");
-        addKeyPressListener(Key.ENTER, e->save());
-        save.addClickListener(e->{
+        addKeyPressListener(Key.ENTER, e -> save());
+        save.addClickListener(e -> {
             save();
             this.close();
+            changeHandler.onChange();
         });
 
-        cancel.addClickListener(e->editCredit(credit));
-        cancel.addClickListener(e->this.close());
+        cancel.addClickListener(e ->
+                this.close());
     }
 
     public void save() {
-        Optional<Credit> creditOptional = creditRepository.findByLimitAndPercent(credit.getLimit(), credit.getPercent());
-        if(creditOptional.isEmpty()){
-            credit.setPercent(Double.parseDouble(percent.getValue()));
-            credit.setLimit(Long.parseLong(limit.getValue()));
+        try {
+            Optional<Credit> creditOptional = creditRepository.findByLimitAndPercent(credit.getLimit(), credit.getPercent());
+            if (creditValidator()) {
+                if (creditOptional.isEmpty() && creditValidator()) {
+                    creditRepository.save(credit);
+                    changeHandler.onChange();
+                } else {
+                    Notification.show("Такой кредит уже сущестует.").setPosition(Notification.Position.MIDDLE);
+                }
+            } else {
+                Notification.show("Неверно заполнены данные");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Notification.show("Не удалось создать кредит").setPosition(Notification.Position.MIDDLE);
         }
-        creditRepository.save(credit);
-        changeHandler.onChange();
     }
 
-    public void editCredit(Credit newCredit){
-        if(newCredit == null){
+    public void editCredit(Credit newCredit) {
+        if (newCredit == null) {
             setVisible(false);
             return;
         }
-        if (newCredit.getId()!=null){
+        if (newCredit.getId() != null) {
             this.credit = creditRepository.findByLimitAndPercent(Long.parseLong(limit.getValue()), Double.parseDouble(percent.getValue())).orElse(newCredit);
-        }
-        else {
+        } else {
             this.credit = newCredit;
         }
         binder.setBean(this.credit);
@@ -97,5 +109,13 @@ public class CreditEditor extends Dialog implements KeyNotifier {
         setVisible(true);
 
         limit.focus();
+    }
+
+    private boolean creditValidator() {
+        if (Double.parseDouble(limit.getValue()) == 0.0 || Double.parseDouble(percent.getValue()) == 0.0) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

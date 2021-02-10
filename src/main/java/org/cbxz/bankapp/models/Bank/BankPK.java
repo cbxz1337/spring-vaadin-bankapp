@@ -12,7 +12,7 @@ public class BankPK implements Serializable {
     private int credit;
 
 
-    public BankPK(){
+    public BankPK() {
     }
 
     public BankPK(int client, int credit) {

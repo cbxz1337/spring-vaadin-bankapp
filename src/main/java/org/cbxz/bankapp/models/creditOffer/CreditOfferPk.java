@@ -1,4 +1,5 @@
 package org.cbxz.bankapp.models.creditOffer;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -10,7 +11,7 @@ public class CreditOfferPk implements Serializable {
     private int credit;
 
 
-    public CreditOfferPk(){
+    public CreditOfferPk() {
     }
 
     public CreditOfferPk(int client, int credit) {

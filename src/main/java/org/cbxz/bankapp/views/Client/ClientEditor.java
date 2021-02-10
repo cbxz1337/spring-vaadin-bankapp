@@ -35,12 +35,12 @@ public class ClientEditor extends Dialog implements KeyNotifier{
 
     private Client client;
 
-    private TextField firstName = new TextField("Имя", "Введите имя");
-    private TextField lastName = new TextField("Фамилия", "Введите фамилию");
-    private TextField patronymic = new TextField("Отчество", "Введите отчество");
-    private TextField email = new TextField("Email", "Введите email");
-    private TextField phoneNumber = new TextField("Номер телефона", "Введите номер телефона");
-    private TextField passportNumber = new TextField("Номер паспорта", "Введите номер паспорта");
+    private final TextField firstName = new TextField("Имя", "Введите имя");
+    private final TextField lastName = new TextField("Фамилия", "Введите фамилию");
+    private final TextField patronymic = new TextField("Отчество", "Введите отчество");
+    private final TextField email = new TextField("Email", "Введите email");
+    private final TextField phoneNumber = new TextField("Номер телефона", "Введите номер телефона");
+    private final TextField passportNumber = new TextField("Номер паспорта", "Введите номер паспорта");
 
     private final  String phoneRegexp = "^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$";
     private Button save = new Button("Сохранить", VaadinIcon.CHECK.create());
@@ -64,15 +64,10 @@ public class ClientEditor extends Dialog implements KeyNotifier{
     public ClientEditor(ClientsRepository clientsRepository){
         setCloseOnOutsideClick(true);
         this.clientsRepository = clientsRepository;
-        List<Component> requiredFields = new ArrayList<>();
         firstName.setRequired(true);
         lastName.setRequired(true);
         passportNumber.setRequired(true);
         phoneNumber.setRequired(true);
-        requiredFields.add(firstName);
-        requiredFields.add(lastName);
-        requiredFields.add(passportNumber);
-        requiredFields.add(phoneNumber);
         nameBar.add(firstName, lastName);
         mainLayout.add(nameBar,patronymic,email,phoneNumber,passportNumber, buttons);
         add(mainLayout);
@@ -84,15 +79,13 @@ public class ClientEditor extends Dialog implements KeyNotifier{
                 .withValidator(new EmailValidator("Неверный формат email"))
                 .bind(Client::getEmail, Client::setEmail);
         save.getElement().getThemeList().add("primary");
-        addKeyPressListener(Key.ENTER, e->save());
-
         save.addClickListener(e->{
             if(fieldValidator()){
                 save();
                 this.close();
             }
             else {
-                mainLayout.add(new Notification("Вы заполнили не все необходимые поля."));
+               Notification.show("Вы не заполнили все необходимые поля").setPosition(Notification.Position.MIDDLE);
             }
         });
 
@@ -101,16 +94,44 @@ public class ClientEditor extends Dialog implements KeyNotifier{
     }
 
     public void save() {
-        Optional<Client> clientOptional = clientsRepository.findByPassportNumber(passportNumber.getValue());
-        if(clientOptional.isEmpty()){
-            client.setFirstName(firstName.getValue());
-            client.setLastName(lastName.getValue());
+        try {
+            Optional<Client> clientOptional = clientsRepository.findByPassportNumber(passportNumber.getValue());
+            if(clientOptional.isEmpty()){
+                clientsRepository.save(client);
+            }
+            else {
+                Notification.show("Клиент с таким паспортом уже сущестует.").setPosition(Notification.Position.MIDDLE);
+            }
+            changeHandler.onChange();
         }
-        clientsRepository.save(client);
-        changeHandler.onChange();
+        catch (Exception e){
+            e.printStackTrace();
+            Notification.show("Что-то пошло не так.");
+        }
+
     }
+
     private boolean fieldValidator(){
-        return !firstName.getValue().isEmpty()||lastName.isEmpty()||passportNumber.isEmpty()||phoneNumber.isEmpty();
+        return firstNameValidator()
+                &&lastNameValidator()
+                &&phoneNumberValidator()
+                &&passportNumberValidator();
+    }
+
+    private boolean firstNameValidator(){
+       return firstName.getValue().trim().matches("^[А-Я][а-я]{2,15}");
+    }
+
+    private boolean lastNameValidator(){
+        return lastName.getValue().trim().matches("^[А-Я][а-я]{2,15}");
+    }
+
+    private boolean passportNumberValidator(){
+        return passportNumber.getValue().trim().matches("[\\d]{10}");
+    }
+
+    private boolean phoneNumberValidator(){
+        return passportNumber.getValue().trim().matches(phoneRegexp);
     }
 
     public void editClient(Client newClient){
@@ -126,7 +147,7 @@ public class ClientEditor extends Dialog implements KeyNotifier{
         }
         binder.setBean(this.client);
         setVisible(true);
-        lastName.focus();
+        firstName.focus();
     }
 }
 

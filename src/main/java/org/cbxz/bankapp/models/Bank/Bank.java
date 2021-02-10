@@ -12,7 +12,6 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 
-
 @EqualsAndHashCode
 @NoArgsConstructor
 @Data
@@ -31,7 +30,7 @@ public class Bank {
     @JoinColumn(name = "client_id", insertable = false, updatable = false)
     private Client client;
 
-    public Bank(Credit credit,Client client) {
+    public Bank(Credit credit, Client client) {
         this.credit = credit;
         this.client = client;
     }
