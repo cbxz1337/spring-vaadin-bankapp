@@ -64,13 +64,19 @@ public class CreditEditor extends Dialog implements KeyNotifier {
     binder.forField(percent)
         .withConverter(new StringToDoubleConverter("Неверные данные"))
         .bind(Credit::getPercent, Credit::setPercent);
+    save.setEnabled(binder.isValid());
     binder.bindInstanceFields(this);
     save.getElement().getThemeList().add("primary");
     addKeyPressListener(Key.ENTER, e -> save());
     save.addClickListener(e -> {
-      save();
-      this.close();
-      changeHandler.onChange();
+      if(binder.isValid()){
+        save();
+        this.close();
+        changeHandler.onChange();
+      } else {
+        Notification.show("Проверьте введенные данные").setPosition(Notification.Position.MIDDLE);
+      }
+
     });
 
     cancel.addClickListener(e ->
