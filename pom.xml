@@ -20,6 +20,15 @@
 <!--            </plugin>-->
 <!--        </plugins>-->
 <!--    </build>-->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
 
     <groupId>org.cbxz</groupId>
     <artifactId>spring-vaadin-bankapp</artifactId>
