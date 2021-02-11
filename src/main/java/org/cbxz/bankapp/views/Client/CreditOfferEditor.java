@@ -27,6 +27,7 @@ import org.cbxz.bankapp.models.schedule.ScheduleRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.sql.Date;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -219,6 +220,8 @@ public class CreditOfferEditor extends Dialog implements KeyNotifier {
       double percentPart = amount * percentScale;
       double debtPart = perMonthPayment - balanceOwed * percentScale;
       Date date = Date.valueOf(localDateTime.toLocalDate());
+      SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd");
+      dateFormat.format(date);
 
       for (int i = 1; i <= months; i++) {
         Schedule schedule = new Schedule(date, perMonthPayment, debtPart, percentPart,
@@ -230,6 +233,7 @@ public class CreditOfferEditor extends Dialog implements KeyNotifier {
         percentPart = balanceOwed * percentScale;
         localDateTime = localDateTime.plusMonths(1);
         date = Date.valueOf(localDateTime.toLocalDate());
+        dateFormat.format(date);
       }
     } catch (Exception e) {
       e.printStackTrace();

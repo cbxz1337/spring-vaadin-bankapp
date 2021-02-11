@@ -187,16 +187,17 @@ public class BankView extends VerticalLayout {
       Label clientsLabel = new Label("Клиент");
       clientsLabel.getStyle()
           .set("border", "1 px solid")
-          .set("background", "#435166")
-          .set("width", "170px")
-          .set("text-align", "center");
+            .set("background", "#435166")
+              .set("width", "170px")
+                .set("text-align", "center")
+                   .set("font-weight", "bold");
       clientDetailsLabel.getStyle()
           .set("border", "none")
           .set("border-bottom", "1px white solid");
       clientDetailsLabel.setSizeFull();
       clientDetailsLabel.getElement().getThemeList();
       Label creditDetailsLabel = new Label(
-          bank.getCredit().toString() + " сумма с учетом процентов: " + df.format(sumWithPercent)
+          bank.getCredit().toString() + " Сумма кредита с учетом процентов: " + df.format(sumWithPercent)
               + " руб");
       creditDetailsLabel.getStyle()
           .set("border", "none")

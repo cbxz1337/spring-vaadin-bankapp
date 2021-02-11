@@ -79,10 +79,9 @@ public class CreditEditor extends Dialog implements KeyNotifier {
 
   public void save() {
     try {
-      Optional<Credit> creditOptional = creditRepository
-          .findByLimitAndPercent(credit.getLimit(), credit.getPercent());
+      Optional<Credit> creditOptional = creditRepository.findByLimitAndPercent(credit.getLimit(), credit.getPercent());
       if (creditValidator()) {
-        if (creditOptional.isEmpty() && creditValidator()) {
+        if (creditOptional.isEmpty()) {
           creditRepository.save(credit);
           changeHandler.onChange();
         } else {
@@ -104,8 +103,7 @@ public class CreditEditor extends Dialog implements KeyNotifier {
       return;
     }
     if (newCredit.getId() != null) {
-      this.credit = creditRepository.findByLimitAndPercent(Long.parseLong(limit.getValue()),
-          Double.parseDouble(percent.getValue())).orElse(newCredit);
+      this.credit = creditRepository.findById(newCredit.getId()).orElse(newCredit);
     } else {
       this.credit = newCredit;
     }
@@ -116,8 +114,10 @@ public class CreditEditor extends Dialog implements KeyNotifier {
     limit.focus();
   }
 
+
+
+
   private boolean creditValidator() {
-    return percent.getValue().trim().matches("^[0-9]{1,2}(\\.+|,+)?[0-9]{1,2}$") && limit.getValue()
-        .trim().matches("^[0-9]{5,7}$");
+    return percent.getValue().trim().matches("^[0-9]{0,2}(\\.+|,+)?[0-9]{1,2}$");
   }
 }

@@ -131,8 +131,9 @@ public class MainView extends VerticalLayout {
         ui.navigate("bank");
       });
     });
-
   }
+
+
 
   private void deleteClient(Client client) {
     if (clientsRepository.findById(client.getId()).isPresent() && !client.getCreditOfferSet()

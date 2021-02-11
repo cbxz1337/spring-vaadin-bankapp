@@ -46,6 +46,6 @@ public class Credit implements Comparable<Credit> {
 
   @Override
   public String toString() {
-    return "лимит: " + this.getLimit() + " руб.," + this.getPercent() + " %";
+    return "Лимит: " + this.getLimit() + ", руб.," + this.getPercent() + " %";
   }
 }
