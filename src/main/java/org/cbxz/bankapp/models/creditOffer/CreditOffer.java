@@ -5,11 +5,10 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.cbxz.bankapp.models.client.Client;
 import org.cbxz.bankapp.models.credit.Credit;
-import org.cbxz.bankapp.models.schedule.Schedule;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.List;
+
 
 @EqualsAndHashCode
 @Entity
@@ -19,24 +18,24 @@ import java.util.List;
 @Table(name = "credit_offer")
 public class CreditOffer implements Serializable {
 
-    @Id
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "client_id", insertable = false, updatable = false)
-    private Client client;
+  @Id
+  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @JoinColumn(name = "client_id", insertable = false, updatable = false)
+  private Client client;
 
-    @Id
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "credit_id")
-    private Credit credit;
+  @Id
+  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @JoinColumn(name = "credit_id")
+  private Credit credit;
 
-    @Column(name = "credit_sum")
-    private double sum;
+  @Column(name = "credit_sum")
+  private double sum;
 
 
-    public CreditOffer(Client client, Credit credit, double sum) {
-        this.client = client;
-        this.credit = credit;
-        this.sum = sum;
-    }
+  public CreditOffer(Client client, Credit credit, double sum) {
+    this.client = client;
+    this.credit = credit;
+    this.sum = sum;
+  }
 
 }

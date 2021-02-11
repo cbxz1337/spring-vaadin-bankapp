@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CreditOfferRepo extends CrudRepository<CreditOffer, Integer> {
 
-    CreditOffer findByCreditAndClient(Credit credit, Client client);
+  CreditOffer findByCreditAndClient(Credit credit, Client client);
 }

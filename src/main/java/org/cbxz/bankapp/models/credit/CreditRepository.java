@@ -7,7 +7,8 @@ import java.util.Optional;
 
 @Repository
 public interface CreditRepository extends CrudRepository<Credit, Integer> {
-    Optional<Credit> findByLimitAndPercent(long limit, double percent);
 
-    Iterable<Credit> findByLimit(long limit);
+  Optional<Credit> findByLimitAndPercent(long limit, double percent);
+
+  Iterable<Credit> findByLimit(long limit);
 }

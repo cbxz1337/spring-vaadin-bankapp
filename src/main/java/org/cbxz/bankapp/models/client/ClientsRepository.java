@@ -9,8 +9,8 @@ import java.util.Optional;
 @Repository
 public interface ClientsRepository extends CrudRepository<Client, Integer> {
 
-    Optional<Client> findByPassportNumber(String passportNumber);
+  Optional<Client> findByPassportNumber(String passportNumber);
 
-    Optional<Client> findByFirstName(String firstName);
+  Optional<Client> findByFirstName(String firstName);
 
 }

@@ -7,7 +7,6 @@ import org.cbxz.bankapp.models.Bank.Bank;
 import org.cbxz.bankapp.models.creditOffer.CreditOffer;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.List;
 
 
@@ -17,36 +16,36 @@ import java.util.List;
 @Table(name = "CREDITS")
 public class Credit implements Comparable<Credit> {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "credit_id")
-    private Integer id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(name = "credit_id")
+  private Integer id;
 
-    private long limit;
+  private long limit;
 
-    private double percent;
+  private double percent;
 
-    @OneToMany(mappedBy = "credit", fetch = FetchType.EAGER)
-    private List<CreditOffer> creditOffers;
+  @OneToMany(mappedBy = "credit", fetch = FetchType.EAGER)
+  private List<CreditOffer> creditOffers;
 
-    @OneToMany(mappedBy = "credit", fetch = FetchType.EAGER)
-    private List<Bank> banks;
+  @OneToMany(mappedBy = "credit", fetch = FetchType.EAGER)
+  private List<Bank> banks;
 
-    public Credit() {
-    }
+  public Credit() {
+  }
 
-    public Credit(long limit, double percent) {
-        this.limit = limit;
-        this.percent = percent;
-    }
+  public Credit(long limit, double percent) {
+    this.limit = limit;
+    this.percent = percent;
+  }
 
-    @Override
-    public int compareTo(Credit o) {
-        return Long.compare(o.getLimit(), this.getLimit());
-    }
+  @Override
+  public int compareTo(Credit o) {
+    return Long.compare(o.getLimit(), this.getLimit());
+  }
 
-    @Override
-    public String toString() {
-        return this.getLimit() + " руб.," + this.getPercent() + " %";
-    }
+  @Override
+  public String toString() {
+    return "лимит: " + this.getLimit() + " руб.," + this.getPercent() + " %";
+  }
 }

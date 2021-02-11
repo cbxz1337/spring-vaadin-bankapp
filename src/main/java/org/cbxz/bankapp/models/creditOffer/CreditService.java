@@ -12,23 +12,23 @@ import java.util.Optional;
 public class CreditService {
 
 
-    private CreditRepository creditRepository;
+  private CreditRepository creditRepository;
 
-    @Autowired
-    public CreditService(CreditRepository creditRepository) {
-        this.creditRepository = creditRepository;
-    }
+  @Autowired
+  public CreditService(CreditRepository creditRepository) {
+    this.creditRepository = creditRepository;
+  }
 
-    public Optional<Credit> findById(int id) {
-        return creditRepository.findById(id);
-    }
+  public Optional<Credit> findById(int id) {
+    return creditRepository.findById(id);
+  }
 
-    public Iterable<Credit> findByLimit(long limit) {
-        return creditRepository.findByLimit(limit);
-    }
+  public Iterable<Credit> findByLimit(long limit) {
+    return creditRepository.findByLimit(limit);
+  }
 
-    public Iterable<Credit> findAll() {
-        return creditRepository.findAll();
-    }
+  public Iterable<Credit> findAll() {
+    return creditRepository.findAll();
+  }
 
 }

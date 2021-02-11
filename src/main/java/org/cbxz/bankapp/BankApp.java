@@ -9,7 +9,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan
 @SpringBootApplication
 public class BankApp {
-    public static void main(String[] args) {
-        SpringApplication.run(BankApp.class, args);
-    }
+
+  public static void main(String[] args) {
+    SpringApplication.run(BankApp.class, args);
+  }
 }
