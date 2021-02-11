@@ -78,6 +78,8 @@ public class MainView extends VerticalLayout {
     navigationBar.setSizeFull();
     navigationBar.setJustifyContentMode(JustifyContentMode.CENTER);
     lastNameFilter.addValueChangeListener(this::lastNameFilter);
+    lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
+    lastNameFilter.addValueChangeListener(e->showClient(e.getValue()));
     passportFilter.setWidth("250px");
     passportFilter.addValueChangeListener(this::passportFilter);
     passportFilter.setValueChangeMode(ValueChangeMode.EAGER);

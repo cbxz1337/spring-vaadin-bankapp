@@ -14,6 +14,7 @@ import com.vaadin.flow.data.converter.StringToDoubleConverter;
 import com.vaadin.flow.data.converter.StringToLongConverter;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import java.sql.Date;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.cbxz.bankapp.models.credit.Credit;
@@ -116,11 +117,7 @@ public class CreditEditor extends Dialog implements KeyNotifier {
   }
 
   private boolean creditValidator() {
-    if (Double.parseDouble(limit.getValue()) == 0.0
-        || Double.parseDouble(percent.getValue()) == 0.0) {
-      return false;
-    } else {
-      return true;
-    }
+    return percent.getValue().trim().matches("^[0-9]{1,2}(\\.+|,+)?[0-9]{1,2}$") && limit.getValue()
+        .trim().matches("^[0-9]{5,7}$");
   }
 }

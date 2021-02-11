@@ -1,0 +1,7 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# CodeStream ignored files
+/../../spring-vaadin-bankapp\.idea/codestream.xml
+
+.idea/
